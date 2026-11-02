@@ -369,6 +369,34 @@
       color: #16834f;
     }
 
+    .total-bayar {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #16834f;
+      color: white;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .total-bayar-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      opacity: .95;
+    }
+
+    .total-bayar-angka {
+      font-size: 26px;
+      font-weight: 800;
+      margin: 4px 0 6px;
+    }
+
+    .total-bayar-ket {
+      font-size: 11px;
+      opacity: .92;
+    }
+
     /* TAMPILAN DESKTOP: TETAP SEPERTI HP */
 
     @media (min-width: 600px) {
@@ -613,7 +641,7 @@
     <div class="hero-content">
 
       <button class="btn-main" onclick="bukaBooking()">
-        BOOKING SEKARANG
+        🎫 BOOKING SEKARANG
       </button>
 
     </div>
@@ -1005,11 +1033,22 @@
 
     detail.replaceChildren();
 
+    const rupiah = function(n) {
+      return 'Rp ' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+
+    const biaya = Number(data.biayaPerPeserta) || 700000;
+    const totalBayar = (data.totalBayar !== undefined && data.totalBayar !== null)
+      ? Number(data.totalBayar)
+      : Number(data.tambahan) * biaya;
+
     const informasi = [
       ['ID Booking', data.idBooking],
       ['Nama', data.nama],
       ['Peserta Tambahan', data.tambahan + ' orang'],
-      ['Total Kursi', data.totalKursi + ' kursi']
+      ['Total Kursi', data.totalKursi + ' kursi'],
+      ['Biaya per Peserta Tambahan', rupiah(biaya)],
+      ['Perhitungan', data.tambahan + ' orang × ' + rupiah(biaya) + ' = ' + rupiah(totalBayar)]
     ];
 
     informasi.forEach(function(item) {
@@ -1025,6 +1064,26 @@
       detail.appendChild(baris);
 
     });
+
+    const kotak = document.createElement('div');
+    kotak.className = 'total-bayar';
+
+    const judul = document.createElement('div');
+    judul.className = 'total-bayar-label';
+    judul.textContent = 'TOTAL PEMBAYARAN YANG HARUS DIBAYAR';
+
+    const angka = document.createElement('div');
+    angka.className = 'total-bayar-angka';
+    angka.textContent = totalBayar > 0 ? rupiah(totalBayar) : 'Rp 0 (Gratis)';
+
+    const ket = document.createElement('div');
+    ket.className = 'total-bayar-ket';
+    ket.textContent = totalBayar > 0
+      ? 'Pemilik booking tidak dikenakan biaya. Pembayaran hanya untuk ' + data.tambahan + ' peserta tambahan.'
+      : 'Pemilik booking tidak dikenakan biaya dan tidak ada peserta tambahan, sehingga tidak ada pembayaran.';
+
+    kotak.append(judul, angka, ket);
+    detail.appendChild(kotak);
 
   }
 
